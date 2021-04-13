@@ -30,16 +30,11 @@ function datos_csv (){
 
 	error_cont=0
 	generate_port
-	cont_datos_csv=0
-
-#			if [ $num_word -eq $cont_datos_csv ]
-#			then
-#				break
-#			fi
 
 			for cont_id in `cat datos.csv `
 			do
-
+				echo ""
+				echo "Creación del Sitio wordpress: "$container
 				database=$(echo $cont_id  | awk -F";" '{print $1}');
 				container=$(echo $cont_id  | awk -F";" '{print $2}');
 				user=$(echo $cont_id  | awk -F";" '{print $3}');
@@ -79,17 +74,25 @@ function datos_csv (){
 					fi
 					echo "Falta/n el/los dato/s: " $falta_datos
 				else
-					echo a
 					funciona=1
 					# Si funciona=1 --> Todo BN
 					# Si funciona=0 --> No funciona
+					create_wp
 				fi
 			done
-			let cont_datos_csv++
-			if [ $funciona -eq 1 ]
+			if [ -e code.sql ]
 			then
-				create_wp
+				rm code.sql
 			fi
+			if [ -e puertos_libres ]
+			then
+				rm puertos_libres
+			fi
+			if [ -e sql_content.sql  ]
+			then
+				rm sql_content.sql
+			fi
+
 }
 
 function generate_port() {
@@ -154,13 +157,6 @@ function generate_port() {
 		then
 			echo $puertos_libres_var | tr '\n' ';'  >> puertos_libres
 		fi
-	done
-}
-function limpiar(){
-
-	for dup in $(cat /tmp/puertos_uso | uniq -d)
-	do
-		sed 's/'$dup'/--/' /tmp/puertos_uso | tr -s '\n'  > /tmp/puertos_limpios
 	done
 }
 
